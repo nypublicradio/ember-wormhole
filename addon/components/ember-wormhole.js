@@ -11,6 +11,7 @@ export default Ember.Component.extend({
     return this.get('renderInPlace') ? this.element : document.getElementById(this.get('destinationElementId'));
   }),
   renderInPlace: false,
+  replaceDestination: false,
 
   didInsertElement: function() {
     this._super(...arguments);
@@ -38,6 +39,7 @@ export default Ember.Component.extend({
   appendToDestination: function() {
     var destinationElement = this.get('destinationElement');
     var currentActiveElement = document.activeElement;
+    var replaceDestination = this.get('replaceDestination');
     if (!destinationElement) {
       var destinationElementId = this.get('destinationElementId');
       if (destinationElementId) {
@@ -46,15 +48,20 @@ export default Ember.Component.extend({
       throw new Error('ember-wormhole failed to render content because the destinationElementId was set to an undefined or falsy value.');
     }
 
-    this.appendRange(destinationElement, this._firstNode, this._lastNode);
+    this.appendRange(destinationElement, this._firstNode, this._lastNode, replaceDestination);
     if (document.activeElement !== currentActiveElement) {
       currentActiveElement.focus();
     }
   },
 
-  appendRange: function(destinationElement, firstNode, lastNode) {
+  appendRange: function(destinationElement, firstNode, lastNode, replace) {
+    let marker;
+    if (replace) {
+      marker = destinationElement;
+      destinationElement = marker.parentElement;
+    } 
     while(firstNode) {
-      destinationElement.insertBefore(firstNode, null);
+      destinationElement.insertBefore(firstNode, replace ? marker : null);
       firstNode = firstNode !== lastNode ? lastNode.parentNode.firstChild : null;
     }
   },
