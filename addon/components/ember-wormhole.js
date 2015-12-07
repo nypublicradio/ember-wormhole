@@ -55,14 +55,16 @@ export default Ember.Component.extend({
   },
 
   appendRange: function(destinationElement, firstNode, lastNode, replace) {
-    let marker;
+    var marker = destinationElement;
     if (replace) {
-      marker = destinationElement;
       destinationElement = marker.parentElement;
-    } 
+    }
     while(firstNode) {
       destinationElement.insertBefore(firstNode, replace ? marker : null);
       firstNode = firstNode !== lastNode ? lastNode.parentNode.firstChild : null;
+    }
+    if (replace) {
+      destinationElement.removeChild(marker);
     }
   },
 
